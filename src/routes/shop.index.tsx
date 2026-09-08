@@ -7,6 +7,7 @@ import { publicApi, type Product } from "@/lib/admin-api";
 import { formatPrice, unitPriceOf, useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { AdSlot } from "@/components/ad-slot";
+import { useSettings } from "@/lib/site-settings";
 
 const title = "Shop — Mayor Beauty Place";
 const description =
@@ -147,11 +148,25 @@ function Skeleton() {
 }
 
 function Shop() {
+  const settings = useSettings();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["products"],
     queryFn: () => publicApi.products(),
   });
   const products = data?.products ?? [];
+
+  if (!settings.shop.enabled) {
+    return (
+      <main className="flex min-h-[70vh] items-center justify-center px-6 py-32">
+        <div className="mx-auto max-w-xl rounded-3xl border border-border bg-card p-10 text-center shadow-soft">
+          <h1 className="font-display text-3xl">Shop unavailable</h1>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            {settings.shop.disabled_message}
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main>

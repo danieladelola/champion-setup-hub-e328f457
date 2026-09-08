@@ -8,6 +8,8 @@ import { contactApi } from "@/lib/admin-api";
 
 import contactHeroAsset from "../assets/contact-hero.png";
 import { AdSlot } from "@/components/ad-slot";
+import { useSettings } from "@/lib/site-settings";
+import { addressLines, telHref } from "@/lib/settings";
 
 const title = "Contact Us — Mayor Beauty Place";
 const description =
@@ -31,6 +33,9 @@ const inputClass =
   "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 focus:outline-none transition";
 
 function Contact() {
+  const settings = useSettings();
+  const { contact } = settings;
+  const address = addressLines(contact.address);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
 
@@ -83,16 +88,32 @@ function Contact() {
             <h2 className="font-display text-4xl leading-tight sm:whitespace-nowrap sm:text-5xl md:text-6xl">
               Tell Us What <em className="italic text-brand-blue">You Need</em>
             </h2>
-            <p className="mt-8 max-w-md leading-relaxed text-muted-foreground">
-              Fill in the form and our team will get back to you within 24
-              hours. For urgent bookings, calling us is always fastest.
-            </p>
-            <div className="mt-12 space-y-3 rounded-3xl bg-card p-8 shadow-soft">
-              <p className="text-sm font-medium">(+44) 7454804251</p>
-              <p className="text-sm font-medium">mayowaani58@gmail.com</p>
-              <p className="text-sm font-medium">
-                110/112 Peckham Rye Lane London, United Kingdom.
+            {contact.response_time_note ? (
+              <p className="mt-8 max-w-md leading-relaxed text-muted-foreground">
+                {contact.response_time_note}
               </p>
+            ) : null}
+            <div className="mt-12 space-y-3 rounded-3xl bg-card p-8 shadow-soft">
+              {[contact.phone, contact.phone_alt].filter(Boolean).map((phone) => (
+                <p key={phone} className="text-sm font-medium">
+                  <a href={telHref(phone)} className="hover:text-brand-blue">
+                    {phone}
+                  </a>
+                </p>
+              ))}
+              {contact.email ? (
+                <p className="text-sm font-medium break-all">
+                  <a href={`mailto:${contact.email}`} className="hover:text-brand-blue">
+                    {contact.email}
+                  </a>
+                </p>
+              ) : null}
+              {address.length > 0 ? (
+                <p className="text-sm font-medium">{address.join(" ")}</p>
+              ) : null}
+              {contact.opening_hours ? (
+                <p className="text-sm text-muted-foreground">{contact.opening_hours}</p>
+              ) : null}
             </div>
           </div>
 
@@ -175,31 +196,36 @@ function Contact() {
       </section>
 
       {/* Map */}
-      <section className="bg-background">
-        <div className="relative h-[420px] w-full md:h-[520px]">
-          <iframe
-            title="Mayor Beauty Place location map"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-0.0719%2C51.4673%2C-0.0659%2C51.4733&layer=mapnik&marker=51.4703%2C-0.0689"
-            width="100%"
-            height="100%"
-            loading="lazy"
-            className="block h-full w-full border-0"
-          />
-          <div className="absolute bottom-6 left-6 max-w-xs rounded-2xl bg-ink/85 p-5 text-on-dark shadow-lift backdrop-blur-md md:bottom-10 md:left-10 md:p-6">
-            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue/20 text-brand-blue">
-              <MapPin className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <h3 className="font-display text-lg">Mayor Beauty Place</h3>
-            <p className="mt-2 text-sm leading-relaxed text-on-dark/80">
-              110/112 Peckham Rye Lane
-              <br />
-              London, United Kingdom
-              <br />
-              Post Code: SE15 4RZ
-            </p>
+      {contact.show_map && contact.map_embed_url ? (
+        <section className="bg-background">
+          <div className="relative h-[420px] w-full md:h-[520px]">
+            <iframe
+              title={`${settings.general.site_name} location map`}
+              src={contact.map_embed_url}
+              width="100%"
+              height="100%"
+              loading="lazy"
+              className="block h-full w-full border-0"
+            />
+            {address.length > 0 ? (
+              <div className="absolute bottom-6 left-6 max-w-xs rounded-2xl bg-ink/85 p-5 text-on-dark shadow-lift backdrop-blur-md md:bottom-10 md:left-10 md:p-6">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue/20 text-brand-blue">
+                  <MapPin className="h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-display text-lg">{settings.general.site_name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-on-dark/80">
+                  {address.map((line, i) => (
+                    <span key={line + i}>
+                      {line}
+                      {i < address.length - 1 ? <br /> : null}
+                    </span>
+                  ))}
+                </p>
+              </div>
+            ) : null}
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
       <AdSlot placement="contact" />
     </main>
   );

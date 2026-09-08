@@ -108,12 +108,24 @@ export function useCart() {
   return ctx;
 }
 
+/**
+ * Currency symbol used by `formatPrice`. Kept as module state so the many
+ * existing `formatPrice(value)` call sites keep working; it is set from the
+ * admin-configured currency by `SettingsProvider`.
+ */
+let currency = "£";
+
+export function setCurrencySymbol(symbol: string) {
+  if (symbol) currency = symbol;
+}
+
 export function formatPrice(value: string | number | null | undefined) {
   if (value === null || value === undefined || value === "") return null;
   const n = typeof value === "number" ? value : Number(value);
   if (Number.isNaN(n)) return null;
-  return `£${n.toFixed(2)}`;
+  return `${currency}${n.toFixed(2)}`;
 }
+
 
 export function unitPriceOf(p: { price: string | number; sale_price: string | number | null }) {
   const sale = p.sale_price === null || p.sale_price === "" ? null : Number(p.sale_price);

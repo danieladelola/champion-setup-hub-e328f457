@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-
 import logoAsset from "../assets/logo.png";
+import { useSettings } from "../lib/site-settings";
 
-const links = [
+const allLinks = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About Us" },
   { to: "/before-and-after", label: "Before & After" },
@@ -13,9 +13,33 @@ const links = [
   { to: "/contact", label: "Contact Us" },
 ] as const;
 
+function AnnouncementBar() {
+  const { announcement } = useSettings();
+  if (!announcement.enabled || !announcement.text) return null;
+  return (
+    <div className="bg-brand-red px-4 py-2 text-center text-xs font-medium text-on-brand sm:text-sm">
+      <span>{announcement.text}</span>
+      {announcement.link_url && announcement.link_label ? (
+        <a href={announcement.link_url} className="ml-2 underline underline-offset-2">
+          {announcement.link_label}
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 export function SiteHeader() {
+  const settings = useSettings();
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+
+  const links = allLinks.filter(
+    (l) =>
+      (l.to !== "/shop" || settings.shop.enabled) &&
+      (l.to !== "/book" || settings.booking.enabled),
+  );
+  const siteName = settings.general.site_name;
+  const logo = settings.general.logo_url || logoAsset;
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -32,14 +56,13 @@ export function SiteHeader() {
     <header
       className={`fixed top-0 left-0 z-50 w-full border-b border-border bg-card text-ink shadow-sm transition-transform duration-300 ${hidden ? "-translate-y-full" : "translate-y-0"}`}
     >
+      <AnnouncementBar />
       <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-5">
-        <Link to="/" aria-label="Mayor Beauty Place home" className="shrink-0">
+        <Link to="/" aria-label={`${siteName} home`} className="shrink-0">
           <img
-            src={logoAsset}
-            alt="Mayor Beauty Place"
-            width={128}
-            height={64}
-            className="h-10 w-auto object-contain md:h-12"
+            src={logo}
+            alt={siteName}
+            className="h-10 w-auto max-w-[180px] object-contain md:h-12 md:max-w-[220px]"
             loading="eager"
           />
         </Link>

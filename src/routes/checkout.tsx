@@ -4,6 +4,8 @@ import { ArrowRight, Lock, RotateCcw, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 
 import { publicApi } from "@/lib/admin-api";
+import { useSettings } from "@/lib/site-settings";
+import { calculateDeliveryFee } from "@/lib/shipping";
 import { formatPrice, useCart } from "@/lib/cart";
 import { AdSlot } from "@/components/ad-slot";
 
@@ -52,16 +54,25 @@ const DELIVERY_FIELDS: Field[] = [
 const FIELDS: Field[] = [...CONTACT_FIELDS, ...DELIVERY_FIELDS];
 
 const PERKS = [
-  { icon: Truck, label: "Free UK delivery on every order" },
-  { icon: ShieldCheck, label: "Card & Klarna, secured by Stripe" },
+  { icon: Truck, label: "Fast, tracked UK delivery" },
   { icon: RotateCcw, label: "14-day easy returns" },
 ];
 
 function CheckoutPage() {
   const cart = useCart();
+  const settings = useSettings();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const deliveryFee = 0;
+  const deliveryFee = calculateDeliveryFee(cart.subtotal, {
+    flatRate: settings.shop.shipping_flat_rate,
+    freeThreshold: settings.shop.free_shipping_threshold,
+  });
+  const perks = [
+    ...PERKS,
+    ...(settings.payments.show_secure_badge
+      ? [{ icon: ShieldCheck, label: settings.payments.accepted_methods_note }]
+      : []),
+  ];
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -217,6 +228,12 @@ function CheckoutPage() {
               </div>
             </section>
 
+            {settings.payments.checkout_note ? (
+              <p className="rounded-2xl border border-border bg-secondary/40 p-4 text-xs leading-relaxed text-muted-foreground">
+                {settings.payments.checkout_note}
+              </p>
+            ) : null}
+
             <button
               type="submit"
               disabled={submitting}
@@ -284,7 +301,7 @@ function CheckoutPage() {
             </div>
 
             <ul className="grid gap-3 rounded-3xl border border-border bg-secondary/60 p-6">
-              {PERKS.map((perk) => (
+              {perks.map((perk) => (
                 <li key={perk.label} className="flex items-center gap-3 text-sm">
                   <perk.icon className="h-4 w-4 shrink-0 text-brand-blue" />
                   {perk.label}
