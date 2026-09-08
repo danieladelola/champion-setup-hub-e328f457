@@ -25,6 +25,7 @@ create table if not exists services (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table services add column if not exists note text;
 create index if not exists services_category_idx on services(category_id, sort_order);
 create unique index if not exists services_category_name_idx on services(category_id, lower(name));
 

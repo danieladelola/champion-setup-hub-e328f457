@@ -42,6 +42,7 @@ type ServiceForm = {
   category_id: string;
   name: string;
   description: string;
+  note: string;
   price: string;
   duration_minutes: string;
   sort_order: string;
@@ -120,6 +121,7 @@ function Page() {
         category_id: f.category_id,
         name: f.name.trim(),
         description: f.description.trim() || null,
+        note: f.note.trim() || null,
         price: Number(f.price) || 0,
         duration_minutes: Number(f.duration_minutes) || 60,
         sort_order: Number(f.sort_order) || 0,
@@ -167,6 +169,7 @@ function Page() {
     category_id: s.category_id,
     name: s.name,
     description: s.description ?? "",
+    note: s.note ?? "",
     price: String(Number(s.price ?? 0)),
     duration_minutes: String(s.duration_minutes ?? 60),
     sort_order: String(s.sort_order ?? 0),
@@ -252,6 +255,7 @@ function Page() {
                     category_id: currentCategory,
                     name: "",
                     description: "",
+                    note: "",
                     price: "0",
                     duration_minutes: "60",
                     sort_order: String(filtered.length),
@@ -283,7 +287,17 @@ function Page() {
                   <tbody>
                     {filtered.map((s) => (
                       <tr key={s.id} className="border-b border-border/60 last:border-0">
-                        <td className="px-3 py-2 font-medium">{s.name}</td>
+                        <td className="px-3 py-2 font-medium">
+                          {s.name}
+                          {s.note ? (
+                            <span
+                              title={s.note}
+                              className="mt-0.5 block max-w-[220px] truncate text-xs font-normal text-muted-foreground"
+                            >
+                              Note: {s.note}
+                            </span>
+                          ) : null}
+                        </td>
                         <td className="px-3 py-2">£{Number(s.price ?? 0).toFixed(2)}</td>
                         <td className="px-3 py-2">{s.duration_minutes} min</td>
                         <td className="px-3 py-2">
@@ -439,6 +453,16 @@ function Page() {
                 onChange={(e) =>
                   setServiceForm({ ...serviceForm, description: e.target.value })
                 }
+                className={inputClass}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Internal note (optional)</Label>
+              <Textarea
+                rows={2}
+                placeholder="Only visible to you in the admin area"
+                value={serviceForm.note}
+                onChange={(e) => setServiceForm({ ...serviceForm, note: e.target.value })}
                 className={inputClass}
               />
             </div>

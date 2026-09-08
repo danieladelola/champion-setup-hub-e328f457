@@ -11,6 +11,7 @@ export const serviceSchema = z.object({
   category_id: z.string().uuid("Select a category"),
   name: z.string().trim().min(1, "Service name is required").max(200),
   description: z.string().trim().max(2000).optional().nullable(),
+  note: z.string().trim().max(2000).optional().nullable(),
   price: z.coerce.number().min(0).max(1_000_000).default(0),
   duration_minutes: z.coerce.number().int().min(5).max(1440).default(60),
   sort_order: z.coerce.number().int().min(0).max(9999).default(0),

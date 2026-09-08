@@ -45,8 +45,8 @@ export const Route = createFileRoute("/api/admin/services")({
         try {
           const sql = getDb();
           const rows = await sql`
-            insert into services (category_id, name, description, price, duration_minutes, sort_order, active)
-            values (${s.category_id}, ${s.name}, ${s.description ?? null}, ${s.price},
+            insert into services (category_id, name, description, note, price, duration_minutes, sort_order, active)
+            values (${s.category_id}, ${s.name}, ${s.description ?? null}, ${s.note ?? null}, ${s.price},
               ${s.duration_minutes}, ${s.sort_order}, ${s.active})
             returning *`;
           return json({ service: rows[0] }, { status: 201 });

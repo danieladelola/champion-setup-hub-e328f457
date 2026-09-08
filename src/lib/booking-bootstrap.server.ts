@@ -38,6 +38,8 @@ async function run(): Promise<void> {
       updated_at timestamptz not null default now()
     )`;
 
+  await sql`alter table services add column if not exists note text`;
+
   await sql`create index if not exists services_category_idx on services(category_id, sort_order)`;
   await sql`create unique index if not exists services_category_name_idx on services(category_id, lower(name))`;
 
