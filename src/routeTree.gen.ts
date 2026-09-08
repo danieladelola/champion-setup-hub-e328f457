@@ -39,6 +39,7 @@ import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as ApiPaymentStatusRouteImport } from './routes/api/payment-status'
 import { Route as ApiProductsRouteImport } from './routes/api/products'
 import { Route as ApiServicesRouteImport } from './routes/api/services'
+import { Route as ApiSettingsRouteImport } from './routes/api/settings'
 import { Route as ApiTransformationsRouteImport } from './routes/api/transformations'
 import { Route as BookingSuccessReferenceRouteImport } from './routes/booking-success.$reference'
 import { Route as OrderSuccessOrderNumberRouteImport } from './routes/order-success.$orderNumber'
@@ -55,6 +56,7 @@ import { Route as ApiAdminOrdersRouteImport } from './routes/api/admin/orders'
 import { Route as ApiAdminProductsRouteImport } from './routes/api/admin/products'
 import { Route as ApiAdminServiceCategoriesRouteImport } from './routes/api/admin/service-categories'
 import { Route as ApiAdminServicesRouteImport } from './routes/api/admin/services'
+import { Route as ApiAdminSettingsRouteImport } from './routes/api/admin/settings'
 import { Route as ApiAdminStatsRouteImport } from './routes/api/admin/stats'
 import { Route as ApiAdminTransformationsRouteImport } from './routes/api/admin/transformations'
 import { Route as ApiAdminUploadRouteImport } from './routes/api/admin/upload'
@@ -225,6 +227,11 @@ const ApiServicesRoute = ApiServicesRouteImport.update({
   path: '/api/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSettingsRoute = ApiSettingsRouteImport.update({
+  id: '/api/settings',
+  path: '/api/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTransformationsRoute = ApiTransformationsRouteImport.update({
   id: '/api/transformations',
   path: '/api/transformations',
@@ -304,6 +311,11 @@ const ApiAdminServiceCategoriesRoute =
 const ApiAdminServicesRoute = ApiAdminServicesRouteImport.update({
   id: '/api/admin/services',
   path: '/api/admin/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminSettingsRoute = ApiAdminSettingsRouteImport.update({
+  id: '/api/admin/settings',
+  path: '/api/admin/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminStatsRoute = ApiAdminStatsRouteImport.update({
@@ -429,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/services': typeof ApiServicesRoute
+  '/api/settings': typeof ApiSettingsRoute
   '/api/transformations': typeof ApiTransformationsRoute
   '/booking-success/$reference': typeof BookingSuccessReferenceRoute
   '/order-success/$orderNumber': typeof OrderSuccessOrderNumberRoute
@@ -446,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/service-categories': typeof ApiAdminServiceCategoriesRouteWithChildren
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/transformations': typeof ApiAdminTransformationsRouteWithChildren
   '/api/admin/upload': typeof ApiAdminUploadRoute
@@ -495,6 +509,7 @@ export interface FileRoutesByTo {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/services': typeof ApiServicesRoute
+  '/api/settings': typeof ApiSettingsRoute
   '/api/transformations': typeof ApiTransformationsRoute
   '/booking-success/$reference': typeof BookingSuccessReferenceRoute
   '/order-success/$orderNumber': typeof OrderSuccessOrderNumberRoute
@@ -512,6 +527,7 @@ export interface FileRoutesByTo {
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/service-categories': typeof ApiAdminServiceCategoriesRouteWithChildren
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/transformations': typeof ApiAdminTransformationsRouteWithChildren
   '/api/admin/upload': typeof ApiAdminUploadRoute
@@ -562,6 +578,7 @@ export interface FileRoutesById {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/services': typeof ApiServicesRoute
+  '/api/settings': typeof ApiSettingsRoute
   '/api/transformations': typeof ApiTransformationsRoute
   '/booking-success/$reference': typeof BookingSuccessReferenceRoute
   '/order-success/$orderNumber': typeof OrderSuccessOrderNumberRoute
@@ -579,6 +596,7 @@ export interface FileRoutesById {
   '/api/admin/products': typeof ApiAdminProductsRouteWithChildren
   '/api/admin/service-categories': typeof ApiAdminServiceCategoriesRouteWithChildren
   '/api/admin/services': typeof ApiAdminServicesRouteWithChildren
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/admin/transformations': typeof ApiAdminTransformationsRouteWithChildren
   '/api/admin/upload': typeof ApiAdminUploadRoute
@@ -630,6 +648,7 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/api/products'
     | '/api/services'
+    | '/api/settings'
     | '/api/transformations'
     | '/booking-success/$reference'
     | '/order-success/$orderNumber'
@@ -647,6 +666,7 @@ export interface FileRouteTypes {
     | '/api/admin/products'
     | '/api/admin/service-categories'
     | '/api/admin/services'
+    | '/api/admin/settings'
     | '/api/admin/stats'
     | '/api/admin/transformations'
     | '/api/admin/upload'
@@ -696,6 +716,7 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/api/products'
     | '/api/services'
+    | '/api/settings'
     | '/api/transformations'
     | '/booking-success/$reference'
     | '/order-success/$orderNumber'
@@ -713,6 +734,7 @@ export interface FileRouteTypes {
     | '/api/admin/products'
     | '/api/admin/service-categories'
     | '/api/admin/services'
+    | '/api/admin/settings'
     | '/api/admin/stats'
     | '/api/admin/transformations'
     | '/api/admin/upload'
@@ -762,6 +784,7 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/api/products'
     | '/api/services'
+    | '/api/settings'
     | '/api/transformations'
     | '/booking-success/$reference'
     | '/order-success/$orderNumber'
@@ -779,6 +802,7 @@ export interface FileRouteTypes {
     | '/api/admin/products'
     | '/api/admin/service-categories'
     | '/api/admin/services'
+    | '/api/admin/settings'
     | '/api/admin/stats'
     | '/api/admin/transformations'
     | '/api/admin/upload'
@@ -829,6 +853,7 @@ export interface RootRouteChildren {
   ApiPaymentStatusRoute: typeof ApiPaymentStatusRoute
   ApiProductsRoute: typeof ApiProductsRouteWithChildren
   ApiServicesRoute: typeof ApiServicesRoute
+  ApiSettingsRoute: typeof ApiSettingsRoute
   ApiTransformationsRoute: typeof ApiTransformationsRoute
   BookingSuccessReferenceRoute: typeof BookingSuccessReferenceRoute
   OrderSuccessOrderNumberRoute: typeof OrderSuccessOrderNumberRoute
@@ -846,6 +871,7 @@ export interface RootRouteChildren {
   ApiAdminProductsRoute: typeof ApiAdminProductsRouteWithChildren
   ApiAdminServiceCategoriesRoute: typeof ApiAdminServiceCategoriesRouteWithChildren
   ApiAdminServicesRoute: typeof ApiAdminServicesRouteWithChildren
+  ApiAdminSettingsRoute: typeof ApiAdminSettingsRoute
   ApiAdminStatsRoute: typeof ApiAdminStatsRoute
   ApiAdminTransformationsRoute: typeof ApiAdminTransformationsRouteWithChildren
   ApiAdminUploadRoute: typeof ApiAdminUploadRoute
@@ -1067,6 +1093,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/settings': {
+      id: '/api/settings'
+      path: '/api/settings'
+      fullPath: '/api/settings'
+      preLoaderRoute: typeof ApiSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/transformations': {
       id: '/api/transformations'
       path: '/api/transformations'
@@ -1177,6 +1210,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/services'
       fullPath: '/api/admin/services'
       preLoaderRoute: typeof ApiAdminServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/settings': {
+      id: '/api/admin/settings'
+      path: '/api/admin/settings'
+      fullPath: '/api/admin/settings'
+      preLoaderRoute: typeof ApiAdminSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/stats': {
@@ -1470,6 +1510,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentStatusRoute: ApiPaymentStatusRoute,
   ApiProductsRoute: ApiProductsRouteWithChildren,
   ApiServicesRoute: ApiServicesRoute,
+  ApiSettingsRoute: ApiSettingsRoute,
   ApiTransformationsRoute: ApiTransformationsRoute,
   BookingSuccessReferenceRoute: BookingSuccessReferenceRoute,
   OrderSuccessOrderNumberRoute: OrderSuccessOrderNumberRoute,
@@ -1487,6 +1528,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminProductsRoute: ApiAdminProductsRouteWithChildren,
   ApiAdminServiceCategoriesRoute: ApiAdminServiceCategoriesRouteWithChildren,
   ApiAdminServicesRoute: ApiAdminServicesRouteWithChildren,
+  ApiAdminSettingsRoute: ApiAdminSettingsRoute,
   ApiAdminStatsRoute: ApiAdminStatsRoute,
   ApiAdminTransformationsRoute: ApiAdminTransformationsRouteWithChildren,
   ApiAdminUploadRoute: ApiAdminUploadRoute,

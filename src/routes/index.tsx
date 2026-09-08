@@ -29,6 +29,7 @@ import { publicApi, type Product } from "../lib/admin-api";
 import { formatPrice, unitPriceOf, useCart } from "../lib/cart";
 import { useWishlist } from "../lib/wishlist";
 import { AdSlot } from "@/components/ad-slot";
+import { useSettings } from "../lib/site-settings";
 
 const title = "Mayor Beauty Place | Elevate Your Everyday Look";
 const description =
@@ -219,22 +220,25 @@ function ShopTeaserCard({ product: p }: { product: Product }) {
 }
 
 function Index() {
+  const settings = useSettings();
+  const home = settings.home;
   const { data: productData } = useQuery({
     queryKey: ["products"],
     queryFn: () => publicApi.products(),
   });
   const all = productData?.products ?? [];
-  const featured = [...all].sort((a, b) => Number(b.featured) - Number(a.featured)).slice(0, 6);
+  const featured = [...all]
+    .sort((a, b) => Number(b.featured) - Number(a.featured))
+    .slice(0, home.shop_teaser_count);
+
 
   return (
     <main>
       {/* Hero */}
       <section className="relative flex h-screen w-full items-center overflow-hidden bg-ink">
         <img
-          src={heroImg}
-          alt="Serene woman with a white spa towel wrapped around her hair against a deep blue background"
-          width={1672}
-          height={941}
+          src={home.hero_image_url || heroImg}
+          alt={home.hero_title ? `${home.hero_title} ${home.hero_title_accent}`.trim() : settings.general.site_name}
           className="absolute inset-0 h-full w-full object-cover object-[70%_center] md:object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/45 to-ink/10" />
@@ -242,34 +246,44 @@ function Index() {
 
         <div className="relative w-full px-6 md:px-12">
           <div className="max-w-2xl">
-            <span className="mb-6 inline-flex items-center gap-3 rounded-full border border-on-dark/25 bg-on-dark/10 px-5 py-2 text-xs font-medium tracking-widest text-on-dark/90 uppercase backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
-              Beauty Empire · Peckham, London
-            </span>
+            {home.hero_badge ? (
+              <span className="mb-6 inline-flex items-center gap-3 rounded-full border border-on-dark/25 bg-on-dark/10 px-5 py-2 text-xs font-medium tracking-widest text-on-dark/90 uppercase backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
+                {home.hero_badge}
+              </span>
+            ) : null}
             <h1 className="animate-reveal font-display text-6xl leading-[1.02] text-on-dark md:text-8xl">
-              Where Beauty
-              <br />
-              Meets <em className="italic text-brand-red">Artistry</em>
+              {home.hero_title}
+              {home.hero_title_accent ? (
+                <>
+                  <br />
+                  <em className="italic text-brand-red">{home.hero_title_accent}</em>
+                </>
+              ) : null}
             </h1>
-            <p className="mt-8 max-w-md text-base leading-relaxed font-light text-on-dark/80">
-              A successful career in the beauty industry, built on professional
-              ethics, expert consultation and quality products — all under one
-              roof in Peckham.
-            </p>
+            {home.hero_subtitle ? (
+              <p className="mt-8 max-w-md text-base leading-relaxed font-light text-on-dark/80">
+                {home.hero_subtitle}
+              </p>
+            ) : null}
             <div className="mt-12 flex flex-wrap gap-4">
-              <Link
-                to="/book"
-                className="group inline-flex items-center gap-2 rounded-full bg-brand-red px-8 py-4 text-sm font-semibold text-on-brand shadow-lift transition-colors hover:bg-brand-blue"
-              >
-                Book A Service
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <Link
-                to="/shop"
-                className="rounded-full border border-on-dark/40 px-8 py-4 text-sm font-semibold text-on-dark transition-colors hover:border-on-dark hover:bg-on-dark hover:text-ink"
-              >
-                Shop Products
-              </Link>
+              {home.primary_cta_label && home.primary_cta_url ? (
+                <a
+                  href={home.primary_cta_url}
+                  className="group inline-flex items-center gap-2 rounded-full bg-brand-red px-8 py-4 text-sm font-semibold text-on-brand shadow-lift transition-colors hover:bg-brand-blue"
+                >
+                  {home.primary_cta_label}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              ) : null}
+              {home.secondary_cta_label && home.secondary_cta_url ? (
+                <a
+                  href={home.secondary_cta_url}
+                  className="rounded-full border border-on-dark/40 px-8 py-4 text-sm font-semibold text-on-dark transition-colors hover:border-on-dark hover:bg-on-dark hover:text-ink"
+                >
+                  {home.secondary_cta_label}
+                </a>
+              ) : null}
             </div>
           </div>
         </div>
@@ -277,6 +291,7 @@ function Index() {
       <AdSlot placement="home_after_hero" />
 
       {/* About */}
+      {home.show_about && (
       <section className="bg-background px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
           {/* Image Composition */}
@@ -381,8 +396,10 @@ function Index() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Pillars */}
+      {home.show_pillars && (
       <section className="bg-secondary px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 max-w-xl">
@@ -417,9 +434,11 @@ function Index() {
           </div>
         </div>
       </section>
+      )}
       <AdSlot placement="home_mid" />
 
       {/* Shop teaser */}
+      {home.show_shop_teaser && settings.shop.enabled && (
       <section className="bg-[#2645D8] px-6 py-16 text-on-dark md:px-12 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
@@ -450,11 +469,14 @@ function Index() {
           )}
         </div>
       </section>
+      )}
 
       {/* How We Work */}
+      {home.show_steps && (
       <section className="bg-card px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Video */}
+          {home.show_video && (
           <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-black shadow-lift">
             <iframe
               src="https://www.youtube.com/embed/ezlAAB0NWVU?autoplay=1&mute=1&start=38&rel=0&modestbranding=1&playsinline=1&controls=0"
@@ -465,6 +487,7 @@ function Index() {
             />
             <VideoCover />
           </div>
+          )}
 
           {/* Steps */}
           <div className="pt-10 lg:pt-0">
@@ -500,9 +523,10 @@ function Index() {
           </div>
         </div>
       </section>
+      )}
       <AdSlot placement="home_bottom" />
 
-      <Testimonials />
+      {home.show_testimonials && <Testimonials />}
     </main>
   );
 }

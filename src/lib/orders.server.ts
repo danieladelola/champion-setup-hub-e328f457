@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { getDb } from "./db.server";
+import { getSettingsSafe } from "./settings.server";
 
 export const checkoutSchema = z.object({
   first_name: z.string().trim().min(1, "First name is required").max(100),
@@ -34,10 +35,9 @@ export const ORDER_STATUSES = [
 
 export const PAYMENT_STATUSES = ["unpaid", "paid", "refunded"] as const;
 
-/** Delivery pricing is not configured yet — structured so it can be replaced later. */
-export function calculateDeliveryFee(_subtotal: number): number {
-  return 0;
-}
+import { calculateDeliveryFee } from "./shipping";
+
+export { calculateDeliveryFee };
 
 export class OrderError extends Error {
   status: number;
@@ -107,7 +107,11 @@ export async function createOrder(input: CheckoutInput) {
     }
 
     const subtotal = Number(rows.reduce((s, r) => s + r.line_total, 0).toFixed(2));
-    const deliveryFee = calculateDeliveryFee(subtotal);
+    const shopSettings = (await getSettingsSafe()).shop;
+    const deliveryFee = calculateDeliveryFee(subtotal, {
+      flatRate: shopSettings.shipping_flat_rate,
+      freeThreshold: shopSettings.free_shipping_threshold,
+    });
     const total = Number((subtotal + deliveryFee).toFixed(2));
 
     const customerName = `${input.first_name} ${input.last_name}`.trim();

@@ -1,5 +1,7 @@
 import { getDb } from "./db.server";
+import { getSettingsSafe } from "./settings.server";
 import {
+  buildTimeSlots,
   DEFAULT_DURATION_MINUTES,
   isDayFullyBooked,
   timeToMinutes,
@@ -34,12 +36,23 @@ export async function getBusyRangesForDate(date: string): Promise<BusyRange[]> {
   return toBusyRanges(rows as unknown as Record<string, unknown>[]);
 }
 
+/** Bookable slots for the admin-configured opening hours. */
+export async function getConfiguredSlots(): Promise<string[]> {
+  const settings = await getSettingsSafe();
+  return buildTimeSlots({
+    open: settings.booking.open_time,
+    close: settings.booking.close_time,
+    interval: settings.booking.slot_interval_minutes,
+  });
+}
+
 export async function getDayAvailability(date: string, durationMinutes?: number) {
-  const busy = await getBusyRangesForDate(date);
+  const [busy, slots] = await Promise.all([getBusyRangesForDate(date), getConfiguredSlots()]);
   return {
     date,
     busy,
-    unavailable: unavailableSlots(busy, durationMinutes),
+    slots,
+    unavailable: unavailableSlots(busy, durationMinutes, slots),
   };
 }
 
@@ -62,9 +75,10 @@ export async function getFullyBookedDates(month: string, durationMinutes?: numbe
     byDay.set(day, list);
   }
 
+  const slots = await getConfiguredSlots();
   const full: string[] = [];
   for (const [day, list] of byDay) {
-    if (isDayFullyBooked(toBusyRanges(list), durationMinutes)) full.push(day);
+    if (isDayFullyBooked(toBusyRanges(list), durationMinutes, slots)) full.push(day);
   }
   return full.sort();
 }

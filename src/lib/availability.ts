@@ -32,12 +32,27 @@ export type BusyRange = { start: number; end: number };
 export const DEFAULT_DURATION_MINUTES = 60;
 
 /** Slots that overlap an existing appointment, given the new service length. */
+export type SlotConfig = { open: string; close: string; interval: number };
+
+export const DEFAULT_SLOT_CONFIG: SlotConfig = { open: "11:00", close: "18:00", interval: 10 };
+
+/** Bookable times for the configured opening hours (admin Settings → Booking). */
+export function buildTimeSlots(config: SlotConfig = DEFAULT_SLOT_CONFIG): string[] {
+  const open = timeToMinutes(config.open) ?? OPEN_MINUTES;
+  const close = timeToMinutes(config.close) ?? CLOSE_MINUTES;
+  const interval = config.interval > 0 ? config.interval : SLOT_INTERVAL_MINUTES;
+  if (close <= open) return [minutesToTime(open)];
+  const count = Math.floor((close - open) / interval) + 1;
+  return Array.from({ length: count }, (_, i) => minutesToTime(open + i * interval));
+}
+
 export function unavailableSlots(
   busy: BusyRange[],
   durationMinutes = DEFAULT_DURATION_MINUTES,
+  slots: string[] = TIME_SLOTS,
 ): string[] {
   const length = durationMinutes > 0 ? durationMinutes : DEFAULT_DURATION_MINUTES;
-  return TIME_SLOTS.filter((slot) => {
+  return slots.filter((slot) => {
     const start = timeToMinutes(slot)!;
     const end = start + length;
     return busy.some((range) => start < range.end && end > range.start);
@@ -45,6 +60,10 @@ export function unavailableSlots(
 }
 
 /** True when no slot at all is free on that day. */
-export function isDayFullyBooked(busy: BusyRange[], durationMinutes?: number) {
-  return unavailableSlots(busy, durationMinutes).length === TIME_SLOTS.length;
+export function isDayFullyBooked(
+  busy: BusyRange[],
+  durationMinutes?: number,
+  slots: string[] = TIME_SLOTS,
+) {
+  return unavailableSlots(busy, durationMinutes, slots).length === slots.length;
 }

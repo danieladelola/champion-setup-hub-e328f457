@@ -2,14 +2,18 @@ import { Link } from "@tanstack/react-router";
 import {
   Facebook,
   Instagram,
+  Linkedin,
   Mail,
   MapPin,
   Phone,
+  Youtube,
   type LucideIcon,
 } from "lucide-react";
 
 import logoAsset from "../assets/logo.png";
 import paymentMethodsUrl from "../assets/payment-methods.png";
+import { useSettings } from "../lib/site-settings";
+import { addressLines, renderCopyright, telHref } from "../lib/settings";
 
 function TikTok({ className }: { className?: string }) {
   return (
@@ -24,11 +28,13 @@ function TikTok({ className }: { className?: string }) {
   );
 }
 
-const socials: { label: string; Icon: LucideIcon | typeof TikTok; href: string }[] = [
-  { label: "Facebook", Icon: Facebook, href: "https://www.facebook.com/share/199ve8Fd2U/?mibextid=wwXIfr" },
-  { label: "TikTok", Icon: TikTok, href: "https://www.tiktok.com/@mayorbeautyplace58?_r=1&_t=ZS-99ZMuqFhC7O" },
-  { label: "Instagram", Icon: Instagram, href: "https://www.instagram.com/mayorbeautyplace?stkn=M2RucWVhamMzbHht" },
-];
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M18.9 2H22l-6.77 7.73L23.5 22h-7.1l-4.6-6.2L6.4 22H3.3l7.1-8.1L2.8 2h7.1l4.3 5.8L18.9 2Zm-1.2 18h1.7L7.4 3.8H5.6L17.7 20Z" />
+    </svg>
+  );
+}
 
 const learnMore = [
   { label: "My Account", to: "/book" },
@@ -44,39 +50,56 @@ const quickLinks = [
 ] as const;
 
 export function SiteFooter() {
+  const settings = useSettings();
+  const { contact, social, footer, general, payments } = settings;
+  const siteName = general.site_name;
+  const logo = general.logo_url || logoAsset;
+
+  const socials: { label: string; Icon: LucideIcon | typeof TikTok; href: string }[] = [
+    { label: "Facebook", Icon: Facebook, href: social.facebook },
+    { label: "TikTok", Icon: TikTok, href: social.tiktok },
+    { label: "Instagram", Icon: Instagram, href: social.instagram },
+    { label: "YouTube", Icon: Youtube, href: social.youtube },
+    { label: "X", Icon: XIcon, href: social.x },
+    { label: "LinkedIn", Icon: Linkedin, href: social.linkedin },
+  ].filter((s) => Boolean(s.href));
+
+  const address = addressLines(contact.address);
+  const phones = [contact.phone, contact.phone_alt].filter(Boolean);
+
   return (
     <footer className="bg-black px-6 pt-20 pb-6 text-on-dark md:px-12 md:pt-24 md:pb-8">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
           {/* Brand + social */}
           <div className="max-w-xs">
-            <Link to="/" aria-label="Mayor Beauty Place home" className="inline-block">
+            <Link to="/" aria-label={`${siteName} home`} className="inline-block">
               <img
-                src={logoAsset}
-                alt="Mayor Beauty Place"
-                width={160}
-                height={80}
-                className="h-14 w-auto object-contain"
+                src={logo}
+                alt={siteName}
+                className="h-14 w-auto max-w-[220px] object-contain"
                 loading="lazy"
               />
             </Link>
-            <p className="mt-5 text-sm leading-relaxed text-on-dark/70">
-              Our beauty experts understand that each client is unique. They
-              take the time to listen, learn about your preferences, and tailor
-              their services to enhance your natural beauty.
-            </p>
-            <div className="mt-6 flex gap-3">
-              {socials.map(({ label, Icon, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-brand-red transition-colors hover:bg-brand-red hover:text-on-brand"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
+            {footer.about_text ? (
+              <p className="mt-5 text-sm leading-relaxed text-on-dark/70">{footer.about_text}</p>
+            ) : null}
+            {footer.show_socials && socials.length > 0 ? (
+              <div className="mt-6 flex flex-wrap gap-3">
+                {socials.map(({ label, Icon, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={label}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-brand-red transition-colors hover:bg-brand-red hover:text-on-brand"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Learn More */}
@@ -123,63 +146,65 @@ export function SiteFooter() {
               Reach Us
             </h3>
             <ul className="space-y-4 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" />
-                <p className="leading-relaxed text-on-dark/70">
-                  110/112 Peckham Rye Lane
-                  <br />
-                  London, United Kingdom.
-                  <br />
-                  Post Code: SE15 4RZ
-                </p>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-brand-red" />
-                <a
-                  href="mailto:info.mayorbeautyplace@gmail.com"
-                  className="min-w-0 break-all text-on-dark/70 transition-colors hover:text-brand-red"
-                >
-                  info.mayorbeautyplace@gmail.com
-                </a>
-              </li>
-
-              <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-brand-red" />
-                <a
-                  href="tel:+447901910007"
-                  className="text-on-dark/70 transition-colors hover:text-brand-red"
-                >
-                  (+44) 7901910007
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-brand-red" />
-                <a
-                  href="tel:+442083897978"
-                  className="text-on-dark/70 transition-colors hover:text-brand-red"
-                >
-                  02083897978
-                </a>
-              </li>
+              {address.length > 0 ? (
+                <li className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-red" />
+                  <p className="leading-relaxed text-on-dark/70">
+                    {address.map((line, i) => (
+                      <span key={line + i}>
+                        {line}
+                        {i < address.length - 1 ? <br /> : null}
+                      </span>
+                    ))}
+                  </p>
+                </li>
+              ) : null}
+              {contact.email ? (
+                <li className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 shrink-0 text-brand-red" />
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="min-w-0 break-all text-on-dark/70 transition-colors hover:text-brand-red"
+                  >
+                    {contact.email}
+                  </a>
+                </li>
+              ) : null}
+              {phones.map((phone) => (
+                <li key={phone} className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 shrink-0 text-brand-red" />
+                  <a
+                    href={telHref(phone)}
+                    className="text-on-dark/70 transition-colors hover:text-brand-red"
+                  >
+                    {phone}
+                  </a>
+                </li>
+              ))}
+              {contact.opening_hours ? (
+                <li className="text-on-dark/60">{contact.opening_hours}</li>
+              ) : null}
             </ul>
           </div>
         </div>
 
         <div className="mt-14 flex flex-col items-center gap-6 border-t border-on-dark/10 pt-8 md:flex-row md:justify-between">
           <p className="text-center text-xs text-on-dark/50 md:text-left">
-            © 2026 Mayor Beauty Place. All rights reserved.
+            {renderCopyright(footer.copyright)}
           </p>
-          <div className="flex flex-col items-center gap-3 md:items-end">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-dark/40">
-              We Accept
-            </span>
-            <img
-              src={paymentMethodsUrl}
-              alt="Accepted payment methods: Visa, PayPal, Mastercard, Maestro"
-              loading="lazy"
-              className="h-14 w-auto md:h-16"
-            />
-          </div>
+          {footer.show_payment_methods ? (
+            <div className="flex flex-col items-center gap-3 md:items-end">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-dark/40">
+                We Accept
+              </span>
+              <img
+                src={paymentMethodsUrl}
+                alt={payments.accepted_methods_note || "Accepted payment methods"}
+                loading="lazy"
+                className="h-14 w-auto max-w-full md:h-16"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </footer>

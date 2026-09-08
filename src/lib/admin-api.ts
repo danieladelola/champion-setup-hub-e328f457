@@ -1,3 +1,4 @@
+import type { SiteSettings } from "./settings";
 export type AdminUser = {
   id: string;
   full_name: string;
@@ -176,6 +177,12 @@ export const adminApi = {
     }),
   deleteMessage: (id: string) =>
     request<{ ok: true }>(`/api/admin/messages/${id}`, { method: "DELETE" }),
+  settings: () => request<{ settings: SiteSettings }>("/api/admin/settings"),
+  updateSettings: (body: unknown) =>
+    request<{ settings: SiteSettings }>("/api/admin/settings", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
 };
 
 export type Customer = {

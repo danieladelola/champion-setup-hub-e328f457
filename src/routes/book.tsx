@@ -25,7 +25,8 @@ import { Calendar as DateCalendar } from "@/components/ui/calendar";
 import bookingHeroAsset from "@/assets/booking-hero-lashes.webp";
 import { bookingPublicApi } from "@/lib/admin-api";
 import { AdSlot } from "@/components/ad-slot";
-import { TIME_SLOTS } from "@/lib/availability";
+import { buildTimeSlots } from "@/lib/availability";
+import { useSettings } from "@/lib/site-settings";
 
 const title = "Book A Service — Mayor Beauty Place";
 const description =
@@ -93,6 +94,8 @@ function toLocalIso(date: Date) {
 
 
 function Book() {
+  const settings = useSettings();
+  const booking = settings.booking;
   const [step, setStep] = useState(1);
   const [data, setData] = useState<BookingData>(initialData);
   const [processing, setProcessing] = useState(false);
@@ -109,6 +112,16 @@ function Book() {
   const services = useMemo(
     () => allServices.filter((s) => s.category_id === data.categoryId),
     [allServices, data.categoryId],
+  );
+
+  const slots = useMemo(
+    () =>
+      buildTimeSlots({
+        open: booking.open_time,
+        close: booking.close_time,
+        interval: booking.slot_interval_minutes,
+      }),
+    [booking.open_time, booking.close_time, booking.slot_interval_minutes],
   );
 
   const selectedCategory = categories.find((c) => c.id === data.categoryId);
@@ -169,6 +182,12 @@ function Book() {
   today.setHours(0, 0, 0, 0);
   const [month, setMonth] = useState<Date>(selectedDate ?? today);
 
+  const lastBookableDay = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + Math.max(1, booking.max_advance_days));
+    return d;
+  }, [booking.max_advance_days]);
+
   const monthKey = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}`;
 
   // Live from the database: which slots on the chosen day are taken, and which
@@ -206,7 +225,8 @@ function Book() {
     if (takenSlots.has(slot)) return true;
     if (isToday) {
       const [h, m] = slot.split(":").map(Number);
-      if ((h ?? 0) * 60 + (m ?? 0) <= nowMinutes) return true;
+      const notice = Math.max(0, booking.min_notice_hours) * 60;
+      if ((h ?? 0) * 60 + (m ?? 0) <= nowMinutes + notice) return true;
     }
     return false;
   };
@@ -219,6 +239,19 @@ function Book() {
     }
   }, [takenSlots, data.time]);
 
+
+  if (!booking.enabled) {
+    return (
+      <main className="flex min-h-[70vh] items-center justify-center px-6 py-32">
+        <div className="mx-auto max-w-xl rounded-3xl border border-border bg-card p-10 text-center shadow-soft">
+          <h1 className="font-display text-3xl">Booking unavailable</h1>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            {booking.disabled_message}
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -244,6 +277,11 @@ function Book() {
           </p>
         </div>
       </section>
+      {booking.note ? (
+        <div className="bg-secondary/50 px-6 py-4 text-center text-sm text-muted-foreground md:px-12">
+          {booking.note}
+        </div>
+      ) : null}
       <AdSlot placement="booking_top" />
 
       <section className="px-6 py-16 md:px-12 md:py-24">
@@ -411,7 +449,11 @@ function Book() {
                           if (mods["disabled"]) return;
                           update("date", toLocalIso(date));
                         }}
-                        disabled={[{ before: today }, ...fullyBookedDates]}
+                        disabled={[
+                          { before: today },
+                          { after: lastBookableDay },
+                          ...fullyBookedDates,
+                        ]}
                         defaultMonth={selectedDate ?? today}
                         month={month}
                         onMonthChange={setMonth}
@@ -446,7 +488,7 @@ function Book() {
                     </p>
                     <div className="grid max-h-[420px] grid-cols-3 gap-2 overflow-y-auto pr-1 sm:grid-cols-4">
 
-                      {TIME_SLOTS.map((slot) => {
+                      {slots.map((slot) => {
                         const disabled = isSlotDisabled(slot);
                         return (
                           <button
