@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/admin/services/$id")({
           const rows = await sql`
             update services set
               category_id = ${s.category_id}, name = ${s.name},
-              description = ${s.description ?? null}, price = ${s.price},
+              description = ${s.description ?? null}, note = ${s.note ?? null}, price = ${s.price},
               duration_minutes = ${s.duration_minutes}, sort_order = ${s.sort_order},
               active = ${s.active}, updated_at = now()
             where id = ${params.id}

@@ -314,6 +314,7 @@ export type Service = {
   category_name?: string;
   name: string;
   description: string | null;
+  note?: string | null;
   price: string | number;
   duration_minutes: number;
   sort_order: number;

@@ -42,6 +42,7 @@ type ServiceForm = {
   category_id: string;
   name: string;
   description: string;
+  note: string;
   price: string;
   duration_minutes: string;
   sort_order: string;
@@ -120,6 +121,7 @@ function Page() {
         category_id: f.category_id,
         name: f.name.trim(),
         description: f.description.trim() || null,
+        note: f.note.trim() || null,
         price: Number(f.price) || 0,
         duration_minutes: Number(f.duration_minutes) || 60,
         sort_order: Number(f.sort_order) || 0,
@@ -167,6 +169,7 @@ function Page() {
     category_id: s.category_id,
     name: s.name,
     description: s.description ?? "",
+    note: s.note ?? "",
     price: String(Number(s.price ?? 0)),
     duration_minutes: String(s.duration_minutes ?? 60),
     sort_order: String(s.sort_order ?? 0),
@@ -252,6 +255,7 @@ function Page() {
                     category_id: currentCategory,
                     name: "",
                     description: "",
+                    note: "",
                     price: "0",
                     duration_minutes: "60",
                     sort_order: String(filtered.length),
