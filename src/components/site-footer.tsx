@@ -44,9 +44,9 @@ const learnMore = [
 ] as const;
 
 const quickLinks = [
-  { label: "Term of services", to: "/about" },
-  { label: "Privacy Policy", to: "/about" },
-  { label: "Cookie Policy", to: "/about" },
+  { label: "Term of services", to: "/terms-of-service" },
+  { label: "Privacy Policy", to: "/privacy-policy" },
+  { label: "Cookie Policy", to: "/cookie-policy" },
 ] as const;
 
 export function SiteFooter() {
